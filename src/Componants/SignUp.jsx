@@ -54,12 +54,12 @@ function Signup() {
         }
     };
 
-    const uploadDataToFirestore = async (user) => {
+    const uploadDataToFirestore = async (user, name) => {
         try {
             const userRef = doc(db, "users", user.uid);
             await setDoc(userRef, {
-                name: name,
-                email: email,
+                name: name, // Use the name passed to the function
+                email: user.email, // Assuming user.email is available
                 // Do not store passwords in Firestore
             });
             console.log("User data uploaded to Firestore successfully");
@@ -67,30 +67,34 @@ function Signup() {
             console.error("Error uploading user data to Firestore:", error);
         }
     };
+    
 
-    const signupWithGoogle = () => {
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                console.log("User signed in with Google:", result.user);
-                navigate('/');
-            })
-            .catch((error) => {
-                console.error("Error signing in with Google:", error);
-                setGeneralError("Error signing in with Google: " + error.message);
-            });
+    const signupWithGoogle = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            console.log("User signed in with Google:", result.user);
+            // Use the displayName from the user object
+            await uploadDataToFirestore(result.user, result.user.displayName);
+            navigate('/');
+        } catch (error) {
+            console.error("Error signing in with Google:", error);
+            setGeneralError("Error signing in with Google: " + error.message);
+        }
     }
-
-    const signupWithTwitter = () => {
-        signInWithPopup(auth, provider2)
-            .then((result) => {
-                console.log("User signed in with Twitter:", result.user);
-                navigate('/');
-            })
-            .catch((error) => {
-                console.error("Error signing in with Twitter:", error);
-                setGeneralError("Error signing in with Twitter: " + error.message);
-            });
+    
+    const signupWithTwitter = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider2);
+            console.log("User signed in with Twitter:", result.user);
+            // Use the displayName from the user object
+            await uploadDataToFirestore(result.user, result.user.displayName);
+            navigate('/');
+        } catch (error) {
+            console.error("Error signing in with Twitter:", error);
+            setGeneralError("Error signing in with Twitter: " + error.message);
+        }
     }
+    
 
     return (
         <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 mt-10 lg:px-8 bg-gray-800 text-white">
