@@ -16,34 +16,33 @@ const Details = () => {
     rating: 0,
     rated: 0,
   });
-  const [averageRating, setAverageRating] = useState(0); // State for average rating
+  const [averageRating, setAverageRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-useEffect(() => {
- const fetchMovieDetails = async () => {
-    setLoading(true);
-    try {
-      console.log("Fetching movie details for ID:", id); // Debugging statement
-      const movieDoc = doc(db, "movies", id);
-      const movieData = await getDoc(movieDoc);
-      if (movieData.exists()) {
-        setData(movieData.data());
-      } else {
-        console.log("No such document with ID:", id); // Debugging statement
-        setError("No such document!");
+  useEffect(() => {
+    const fetchMovieDetails = async () => {
+      setLoading(true);
+      try {
+        console.log("Fetching movie details for ID:", id);
+        const movieDoc = doc(db, "movies", id);
+        const movieData = await getDoc(movieDoc);
+        if (movieData.exists()) {
+          setData(movieData.data());
+        } else {
+          console.log("No such document with ID:", id);
+          setError("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
+        setError("Error fetching movie details.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching movie details:", error);
-      setError("Error fetching movie details.");
-    } finally {
-      setLoading(false);
-    }
- };
+    };
 
- fetchMovieDetails();
-}, [id]);
-
+    fetchMovieDetails();
+  }, [id]);
 
   useEffect(() => {
     const calculateAverageRating = async () => {
@@ -72,9 +71,9 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center w-full h-96">
-        <ThreeCircles height={40} color="white" />
-      </div>
+        <div className="flex justify-center items-center w-full h-screen">
+          <ThreeCircles height={40} color="white" />
+        </div>
     );
   }
 
@@ -83,27 +82,35 @@ useEffect(() => {
   }
 
   return (
-    <div className="p-4 m-4 flex flex-col md:flex-row items-center md:items-start w-full justify-center">
-      <img
-        src={data.image}
-        alt={`${data.title} movie poster`}
-        className="h-96 block md:sticky top-24"
-      />
-      <div className="md:ml-4 ml-0 w-full md:w-1/2">
-        <h1 className="text-3xl font-bold text-gray-400">
-          {data.title} <span className="text-xl">({data.releaseYear})</span>
-        </h1>
-        <ReactStars
-          size={24}
-          edit={false}
-          half={true}
-          value={averageRating} // Use the calculated average rating
-        />
-        <p className="mt-2">{data.description}</p>
-
-        <Reviews id={id} previousRating={data.rating} userRated={data.rated} />
+      <div className="container mx-auto py-8">
+        <div className="md:flex md:flex-row md:items-center md:justify-center">
+          <div className="md:w-1/3 mb-8 md:mb-0">
+            <img
+                src={data.image}
+                alt={`${data.title} movie poster`}
+                className="w-full h-auto rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="md:w-2/3 md:ml-8">
+            <h1 className="text-3xl font-bold text-gray-400 mb-2">
+              {data.title} <span className="text-xl">({data.releaseYear})</span>
+            </h1>
+            <div className="flex items-center mb-4">
+              <ReactStars
+                  size={24}
+                  edit={false}
+                  half={true}
+                  value={averageRating}
+              />
+              <span className="text-gray-400 ml-2">
+              ({averageRating.toFixed(1)})
+            </span>
+            </div>
+            <p className="text-gray-400 mb-6">{data.description}</p>
+            <Reviews id={id} previousRating={data.rating} userRated={data.rated} />
+          </div>
+        </div>
       </div>
-    </div>
   );
 };
 
